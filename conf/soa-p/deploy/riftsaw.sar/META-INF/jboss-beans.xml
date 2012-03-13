@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<deployment xmlns="urn:jboss:bean-deployer:2.0">
+
+  <bean class="org.jboss.soa.bpel.runtime.db.DatabaseInitializer"
+        name="BPELDatabaseInitializer">
+    <property name="datasource"><value>java:/BPELDB</value></property>
+    <property name="existsSql"><value>select * from ODE_JOB</value></property>
+    <property name="sqlFiles"><value>bpel-sql/postgres.sql</value></property>
+    <property name="useEOL"><value>false</value></property>
+    <depends>jboss.jca:service=DataSourceBinding,name=BPELDB</depends>
+  </bean>
+
+  <bean class="org.jboss.soa.bpel.runtime.engine.service.BPELEngineService"
+        name="BPELEngine">
+    <annotation>@org.jboss.aop.microcontainer.aspects.jmx.JMX(name="jboss.bpel:service=BPELEngine", exposedInterface=org.jboss.soa.bpel.runtime.engine.service.BPELEngineServiceMBean.class,registerDirectly=true)</annotation>
+    <property name="jndiName"><value>bpel/Engine</value></property>
+    <property name="pmapiJndiName"><value>bpel/PMAPI</value></property>
+    <depends>jboss:service=Naming</depends>
+    <depends>BPELDatabaseInitializer</depends>
+    <depends>BPELDeployer</depends>
+    <depends>jboss.esb:service=JuddiClient</depends>
+  </bean>
+
+  <!--
+    Locate the single instance of the kernel
+    -->
+  <bean name="org.jboss.soa.dsp:service=KernelLocator"
+        class="org.jboss.soa.dsp.server.jbossas5.KernelLocator">
+    <property name="kernel">
+      <inject bean="jboss.kernel:service=Kernel" />
+    </property>
+  </bean>
+
+  <!--
+       ServerConfig
+    -->
+  <bean name="org.jboss.soa.dsp:service=ServerConfig"
+        class="org.jboss.soa.dsp.server.jbossas5.JBossServerConfigImpl">
+    <property name="mbeanServer"><inject bean="JMXKernel" property="mbeanServer"/></property>
+    <property name="webServiceHost">${jboss.bind.address}</property>
+  </bean>
+
+
+</deployment>

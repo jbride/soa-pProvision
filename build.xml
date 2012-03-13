@@ -1,0 +1,246 @@
+<project name="soa-p-provision" default="soa-p" basedir=".">
+
+    <property environment="ENV"/>
+    <property file="build.properties" />
+
+    <target name="checkjboss.server.configuration">
+        <available file="${jboss.home}/server/${original.esb.server.runtime}/conf/jboss-service.xml" property="isjboss.server.configuration" />
+        <fail unless="isjboss.server.configuration" message="${jboss.home}/server/${original.esb.server.runtime}  doesn't exist! .... please fix your $jboss.home environment variable!!" />
+    </target>
+
+    <target name="checkESB">
+        <available file="${jboss.home}/server/${original.esb.server.runtime}/deploy/jbossesb.sar" property="isESB" />
+        <fail unless="isESB" message="${jboss.home}/${original.esb.server.runtime}/deploy/jbossesb.sar  doesn't exist! .... please ensure the ESB artifacts are deployed in the JBoss App Platform or you are using SOA-P !!" />
+    </target>
+
+    <target name="clean" description="Cleans JBoss directories">
+        <delete dir="${jboss.home}/server/${jboss.server.configuration}/log" />
+        <delete dir="${jboss.home}/server/${jboss.server.configuration}/data" />
+        <delete dir="${jboss.home}/server/${jboss.server.configuration}/work" />
+        <delete dir="${jboss.home}/server/${jboss.server.configuration}/tmp" />
+        <delete dir="${runtime.lib.dir}" />
+        <delete dir="${jboss.server.deploy.dir}/${organization.name}" />
+    </target>
+
+    <!-- create a clone of the JBoss EAP 'default' config and name it the value of ${jboss.server.configuration} -->
+    <target name="clone.jboss" >
+        <delete dir="${jboss.home}/server/${jboss.server.configuration}" />
+        <copy overwrite="true" todir="${jboss.home}/server/${jboss.server.configuration}">
+            <fileset dir="${jboss.home}/server/${original.esb.server.runtime}" />
+        </copy>
+    </target>
+
+        <condition property="useHornetQ" >
+        <equals arg1="${org.jboss.processFlow.messagingProvider}" arg2="HORNETQ" />
+    </condition>
+    <target name="hornetq-server-config" depends="" description="configure standalone hornetq" if="useHornetQ" >
+        <!--        ********************            modify various HornetQ provider configs         ************            -->
+        <antcall target="filter_file">
+            <param name="file.name" value="conf/hornetq/run.sh"/>
+            <param name="to.dir.name" value="${HORNETQ_HOME}/bin"/>
+        </antcall>
+        <antcall target="filter_file">
+            <param name="file.name" value="conf/hornetq/hornetq-configuration.xml"/>
+            <param name="to.dir.name" value="${HORNETQ_HOME}/config/stand-alone/clustered"/>
+        </antcall>
+        <antcall target="filter_file">
+            <param name="file.name" value="conf/hornetq/hornetq-jms.xml"/>
+            <param name="to.dir.name" value="${HORNETQ_HOME}/config/stand-alone/clustered"/>
+        </antcall>
+        <copy file="conf/hornetq/hornetq-users.xml" toDir="${HORNETQ_HOME}/config/stand-alone/clustered" overwrite="true" verbose="true" />
+    </target>
+
+    <target name="hornetq-soa-p-config" depends="" if="useHornetQ" >
+        <!--    ****************            remove embedded JBoss Messaging                 ***************              -->
+        <delete file="${jboss.home}/server/${jboss.server.configuration}/conf/props/messaging-roles.properties" />
+        <delete file="${jboss.home}/server/${jboss.server.configuration}/conf/props/messaging-users.properties" />
+        <delete dir="${jboss.home}/server/${jboss.server.configuration}/deploy/messaging/" />
+        <delete dir="${jboss.home}/server/${jboss.server.configuration}/deploy/jms-ra.rar" />
+        <delete file="${jboss.home}/server/${jboss.server.configuration}/deploy/quartz-ra.rar" />
+        <delete file="${jboss.home}/server/${jboss.server.configuration}/deployers/messaging-definitions-jboss-beans.xml" />
+        <copy file="conf/jbossEAP/conf/jbossts-properties.xml" overwrite="true" todir="${jboss.home}/server/${jboss.server.configuration}/conf" />
+
+        <copy toDir="${runtime.lib.dir}" overwrite="true" verbose="true" >
+            <fileset dir="${HORNETQ_HOME}/lib" >
+                <include name="hornetq-core-client.jar" />
+                <include name="netty.jar" />
+                <include name="hornetq-jms-client.jar" />
+                <include name="hornetq-core.jar" />
+            </fileset>
+        </copy>
+
+        <!--        ******************          add hornetq JCA resource adapater configs       *************           -->
+        <unjar src="${HORNETQ_HOME}/lib/hornetq-ra.rar" dest="${jboss.home}/server/${jboss.server.configuration}/deploy/hornetq-ra.rar" />
+        <antcall target="filter_file">
+            <param name="file.name" value="conf/hornetq/ra.xml"/>
+            <param name="to.dir.name" value="${jboss.server.deploy.dir}/hornetq-ra.rar/META-INF"/>
+        </antcall>
+        <antcall target="filter_file">
+            <param name="file.name" value="conf/jbossEAP/deploy/hornetq-jms-ds.xml"/>
+            <param name="to.dir.name" value="${jboss.server.deploy.dir}"/>
+        </antcall>
+    </target>
+
+        <condition property="useMRG" >
+        <equals arg1="${org.jboss.processFlow.messagingProvider}" arg2="MRG" />
+    </condition>
+    <target name="qpid_prep" if="useMRG" >
+        <antcall target="jboss.qpid.deploy" />
+        <antcall target="filter_file">
+            <param name="file.name" value="conf/jbossEAP/deploy/qpid-connection-factory-service.xml"/>
+            <param name="to.dir.name" value="${jboss.server.deploy.dir}/${organization.name}"/>
+        </antcall>
+        <antcall target="filter_file">
+            <param name="file.name" value="conf/jbossEAP/deploy/qpid-destinations-service.xml"/>
+            <param name="to.dir.name" value="${jboss.server.deploy.dir}/${organization.name}"/>
+        </antcall>
+    </target>
+
+    <!-- expands properties in the specified file names -->
+    <target name="filter_file">
+        <copy file="${file.name}" toDir="${to.dir.name}" overwrite="true">
+            <filterchain>
+                <expandproperties/>
+            </filterchain>
+        </copy> 
+    </target>
+
+
+
+    <target name="eap-config" depends="" >
+        <mkdir dir="${runtime.lib.dir}" />
+        <mkdir dir="${jboss.server.deploy.dir}/${organization.name}" />
+        <copy file="conf/soa-p/conf/soa-users.properties" overwrite="true" todir="${jboss.home}/server/${jboss.server.configuration}/conf/props" />
+      
+        <copy file="conf/jbossEAP/conf/jboss-log4j.xml" overwrite="true" todir="${jboss.server.conf.dir}"/>
+        <antcall target="filter_file">
+            <param name="file.name" value="conf/jbossEAP/conf/jboss-service.xml"/>
+            <param name="to.dir.name" value="${jboss.server.conf.dir}"/>
+        </antcall>
+        <antcall target="filter_file">
+            <param name="file.name" value="conf/jbossEAP/deploy/properties-service.xml"/>
+            <param name="to.dir.name" value="${jboss.server.deploy.dir}"/>
+        </antcall>
+
+        <copy file="conf/jbossEAP/deployers/ejb-deployer-jboss-beans.xml" overwrite="true" todir="${jboss.home}/server/${jboss.server.configuration}/deployers/"/>
+        <copy file="conf/jbossEAP/deployers/metadata-deployer-jboss-beans.xml" overwrite="true" todir="${jboss.home}/server/${jboss.server.configuration}/deployers/"/>
+
+        <!--    *************           add PostgreSQL & Oracle JDBC libraries to JBoss classpath      ***************     --> 
+        <copy toDir="${runtime.lib.dir}" overwrite="true" verbose="true" file="${jdbc.lib.path}" />
+        <copy file="lib/ojdbc14.jar" toDir="${runtime.lib.dir}" verbose="true" />
+
+        <!-- *************      change EJB2 and EJB3 Timers to use postgresql ******************  -->
+        <copy file="conf/jbossEAP/deploy/ejb2-timer-service.xml" toDir="${jboss.server.deploy.dir}" overwrite="true" />
+
+        <copy file="conf/jbossEAP/run.conf" overwrite="true" todir="${jboss.server.conf.dir}"/>
+
+        <antcall target="filter_file">
+            <param name="file.name" value="conf/jbossEAP/deploy/poc-ds.xml"/>
+            <param name="to.dir.name" value="${jboss.server.deploy.dir}"/>
+        </antcall>
+
+        <delete dir="${jboss.server.deploy.dir}/mail-ra-rar" />
+        <delete dir="${jboss.server.deploy.dir}/mail-service.xml" />
+        <delete file="${jboss.server.deploy.dir}/management" />
+        <delete dir="${jboss.server.deploy.dir}/uuid-key-generator.sar" />
+    </target>
+
+    <target name="deleteJBM_ESB_Queues" if="useHornetQ" >
+        <delete file="${jboss.server.deploy.dir}/jbossesb.esb/jbm-queue-service.xml" />
+    </target>
+    <target name="esb-config" >
+        <antcall target="deleteJBM_ESB_Queues" />
+        <copy file="conf/soa-p/deploy/jbossesb.esb/META-INF/deployment.xml" overwrite="true" todir="${jboss.server.deploy.dir}/jbossesb.esb/META-INF" />
+        
+        <!--    ***************             switch riftsaw to postgres      *******************************     -->
+        <antcall target="filter_file">
+            <param name="file.name" value="conf/soa-p/deploy/riftsaw.sar/META-INF/bpel-ds.xml"/>
+            <param name="to.dir.name" value="${jboss.server.deploy.dir}/riftsaw.sar/META-INF/"/>
+        </antcall>
+        <copy file="conf/soa-p/deploy/riftsaw.sar/bpel.properties" overwrite="true" todir="${jboss.server.deploy.dir}/riftsaw.sar/" />
+        <copy file="conf/soa-p/deploy/riftsaw.sar/META-INF/jboss-beans.xml" overwrite="true" todir="${jboss.server.deploy.dir}/riftsaw.sar/META-INF/" />
+
+
+        <!-- *************      remove ESB message / audit store *************************  -->
+        <delete file="${jboss.server.deploy.dir}/jbossesb.esb/message-store-ds.xml" />
+        <delete file="${jboss.server.deploy.dir}/jbossesb.esb/jbossesb-service.xml" />
+        <copy file="conf/soa-p/deploy/jbossesb.esb/META-INF/jboss-esb.xml" overwrite="true" todir="${jboss.server.deploy.dir}/jbossesb.esb/META-INF"/>
+
+
+        <!-- **************     create new PostgrSQL datastore for ESB and juddi    *********************    -->
+        <antcall target="filter_file">
+            <param name="file.name" value="conf/soa-p/deploy/esb-ds.xml"/>
+            <param name="to.dir.name" value="${jboss.server.deploy.dir}"/>
+        </antcall>
+
+        <!-- ***************        juddi registry now to use PostgreSQL rather than Hypersonic  ******************         -->
+        <copy file="conf/soa-p/deploy/jbossesb-registry.sar/juddi-ds.xml" overwrite="true" todir="${jboss.server.deploy.dir}/jbossesb-registry.sar" />
+        <copy file="conf/soa-p/deploy/jbossesb-registry.sar/juddi_config/META-INF/persistence.xml" overwrite="true" todir="${jboss.server.deploy.dir}/jbossesb-registry.sar/juddi_config/META-INF" />
+
+        <!--    ****************        turn off juddi cache expirary          ************************            -->
+        <copy file="conf/soa-p/deployers/esb.deployer/jbossesb-properties.xml" overwrite="true" todir="${jboss.home}/server/${jboss.server.configuration}/deployers/esb.deployer" />
+
+        <!--    ****************        wsdls should now point to Apache HTTPD           ************************            -->
+        <antcall target="filter_file">
+            <param name="file.name" value="conf/jbossEAP/deployers/jbossws.deployer/META-INF/jboss-beans.xml"/>
+            <param name="to.dir.name" value="${jboss.home}/server/${jboss.server.configuration}/deployers/jbossws.deployer/META-INF"/>
+        </antcall>
+
+        <!--    ****************            remove ejb2 stuff                               ***************             -->
+        <delete file="${jboss.home}/server/${jboss.server.configuration}/deploy/ejb2-container-jboss-beans.xml" />
+
+        <!--  ***      now that nothing is utilizing Hypersonic ... get rid of hsql connection pool    ********      -->
+        <delete file="${jboss.home}/server/${jboss.server.configuration}/deploy/hsqldb-ds.xml" />
+
+        <delete dir="${jboss.server.deploy.dir}/jbpm.esb/" />
+        <delete dir="${jboss.server.deploy.dir}/spring.esb" />
+        <delete dir="${jboss.server.deploy.dir}/slsb.esb" />
+    </target>
+
+   
+    <target name="install.mod.cluster.check">
+        <condition property="mod.cluster.not.available">
+            <not>
+                <available file="${mod.cluster.home}/" />
+            </not>
+        </condition>
+    </target>
+    <target name="install.mod.cluster" depends="install.mod.cluster.check" >
+        <gunzip src="${mod.cluster.archive}.gz" dest="${downloads.dir}" />
+        <untar src="${mod.cluster.archive}" dest="${mod.cluster.home}" />
+    </target>
+    <!--
+        NOTE:  will use 'clustered' config of mod_cluster ..... which requires the use of HAParition
+            will copy appropriate HAPartition stuff from JBoss 'all' config
+    -->
+    <target name="addModCluster" description="" depends="install.mod.cluster" >
+        <copy overwrite="true" file="conf/jbossweb.sar/server.xml" toDir="${jboss.server.deploy.dir}/jbossweb.sar" verbose="true" />
+        <copy toDir="${jboss.server.deploy.dir}/mod_cluster-1.1.1.sar" overwrite="true" verbose="true" >
+            <fileset dir="${mod.cluster.home}/mod_cluster.sar" />
+        </copy>
+
+        <copy file="${jboss.home}/server/all/lib/jbosscache-core.jar" toDir="${runtime.lib.dir}" verbose="true" />
+        <copy file="${jboss.home}/server/all/lib/jbosscache-pojo.jar" toDir="${runtime.lib.dir}" verbose="true" />
+        <copy file="${jboss.home}/server/all/lib/jgroups.jar" toDir="${runtime.lib.dir}" verbose="true" />
+        <copy file="${jboss.home}/server/all/deploy/cluster/hapartition-jboss-beans.xml" toDir="${jboss.server.deploy.dir}/cluster" verbose="true" />
+        <copy toDir="${jboss.server.deploy.dir}/cluster/jboss-cache-manager.sar" verbose="true" >
+            <fileset dir="${jboss.home}/server/all/deploy/cluster/jboss-cache-manager.sar" />
+        </copy>
+        <copy toDir="${jboss.server.deploy.dir}/cluster/jgroups-channelfactory.sar" verbose="true" >
+            <fileset dir="${jboss.home}/server/all/deploy/cluster/jgroups-channelfactory.sar" />
+        </copy>
+
+        <copy file="${mod.cluster.home}/demo/server/load-demo.war" toDir="${jboss.server.deploy.dir}" verbose="true" />
+        
+    </target>
+
+
+    <target name="soa-p" description="configures SOA-P" depends="checkESB,
+                                clean,
+                                clone.jboss,
+                                eap-config,
+                                esb-config,
+                                hornetq-soa-p-config,
+                                addModCluster" 
+    />
+</project>

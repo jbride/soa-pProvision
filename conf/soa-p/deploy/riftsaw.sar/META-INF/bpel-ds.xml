@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<datasources>
+  <local-tx-datasource>
+    <jndi-name>BPELDB</jndi-name>
+    <connection-url>${bpel_connection_url}</connection-url>
+    <driver-class>${bpel_driver_class}</driver-class>
+    <user-name>${bpel_db_user}</user-name>
+    <password>${bpel_db_password}</password>
+    <transaction-isolation>TRANSACTION_READ_COMMITTED</transaction-isolation>
+    <min-pool-size>3</min-pool-size>
+    <max-pool-size>10</max-pool-size>
+    <metadata>
+       <type-mapping>PostgreSQL 8.0</type-mapping>
+    </metadata>
+  </local-tx-datasource>
+
+</datasources>

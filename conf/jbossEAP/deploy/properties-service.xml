@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE server>
+<!-- $Id: properties-service.xml 16662 2003-08-27 04:38:22Z patriot1burke $ -->
+
+<server>
+
+  <!-- ==================================================================== -->
+  <!-- PropertyEditorManager Service                                        -->
+  <!-- ==================================================================== -->
+
+  <!--
+     | Allows access to the PropertyEditorManager, which is used when setting
+     | MBean attribute values from configuration.
+   -->
+
+  <mbean code="org.jboss.varia.property.PropertyEditorManagerService" 
+	 name="jboss:type=Service,name=PropertyEditorManager">
+
+    <!-- 
+       | Register and editor for each of the type_name=editor_type_name listed
+       | in properties file style convetion.
+
+    <attribute name="Editors">
+      java.net.URL=my.project.editors.URLPropertyEditor
+    </attribute>
+
+    -->
+
+  </mbean>
+
+
+  <!-- ==================================================================== -->
+  <!-- System Properties Service                                            -->
+  <!-- ==================================================================== -->
+
+  <!--
+     | Allows rich access to system properties.
+   -->
+
+  <mbean code="org.jboss.varia.property.SystemPropertiesService" 
+	 name="jboss:type=Service,name=SystemProperties">
+
+    <!-- 
+       | Load properties from each of the given comma seperated URLs
+
+    <attribute name="URLList">
+      http://somehost/some-location.properties,
+      ./conf/somelocal.properties
+    </attribute>
+
+    -->
+
+    <!-- 
+       | Set raw properties file style properties.
+    -->
+    <attribute name="Properties">
+        org.jboss.spp.http.server.ip=${org.jboss.spp.http.server.ip}
+        org.jboss.spp.http.server.port=${org.jboss.spp.http.server.port}
+
+        esb_connection_url=${esb_connection_url}
+        esb_driver_class=${esb_driver_class}
+        esb_db_user=${esb_db_user}
+        esb_db_password=${esb_db_password}
+
+        bpel_connection_url=${bpel_connection_url}
+        bpel_driver_class=${bpel_driver_class}
+        bpel_db_user=${bpel_db_user}
+        bpel_db_password=${bpel_db_password}
+
+        poc_connection_url=${poc_connection_url}
+        poc_driver_class=${poc_driver_class}
+        poc_db_user=${poc_db_user}
+        poc_db_password=${poc_db_password}
+    </attribute>
+     
+
+  </mbean>
+
+</server>
