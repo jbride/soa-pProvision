@@ -3,6 +3,12 @@
     <property environment="ENV"/>
     <property file="build.properties" />
 
+    <!--- NOTE:  found in ant-contrib project
+                 - now using for the use of 'var' tasks in subprojects where MUTABLE properties would be nice
+    -->
+    <taskdef resource="net/sf/antcontrib/antcontrib.properties"/>
+
+
     <target name="checkjboss.server.configuration">
         <available file="${jboss.home}/server/${original.esb.server.runtime}/conf/jboss-service.xml" property="isjboss.server.configuration" />
         <fail unless="isjboss.server.configuration" message="${jboss.home}/server/${original.esb.server.runtime}  doesn't exist! .... please fix your $jboss.home environment variable!!" />
@@ -173,9 +179,17 @@
             <param name="to.dir.name" value="${jboss.server.deploy.dir}"/>
         </antcall>
 
-        <!-- ***************        juddi registry now to use PostgreSQL rather than Hypersonic  ******************         -->
-        <copy file="conf/soa-p/deploy/jbossesb-registry.sar/juddi-ds.xml" overwrite="true" todir="${jboss.server.deploy.dir}/jbossesb-registry.sar" />
-        <copy file="conf/soa-p/deploy/jbossesb-registry.sar/juddi_config/META-INF/persistence.xml" overwrite="true" todir="${jboss.server.deploy.dir}/jbossesb-registry.sar/juddi_config/META-INF" />
+       
+        <if>
+            <equals arg1="${use_postgres_for_esb_persistence}" arg2="true" />
+            <then>
+                <!-- ***************        juddi registry now to use PostgreSQL rather than Hypersonic  ******************         -->
+                <copy file="conf/soa-p/deploy/jbossesb-registry.sar/juddi-ds.xml" overwrite="true" 
+                                    todir="${jboss.server.deploy.dir}/jbossesb-registry.sar" />
+                <copy file="conf/soa-p/deploy/jbossesb-registry.sar/juddi_config/META-INF/persistence.xml" overwrite="true" 
+                                    todir="${jboss.server.deploy.dir}/jbossesb-registry.sar/juddi_config/META-INF" />
+            </then>
+        </if>
 
         <!--    ****************        turn off juddi cache expirary          ************************            -->
         <copy file="conf/soa-p/deployers/esb.deployer/jbossesb-properties.xml" overwrite="true" todir="${jboss.home}/server/${jboss.server.configuration}/deployers/esb.deployer" />
@@ -188,9 +202,6 @@
 
         <!--    ****************            remove ejb2 stuff                               ***************             -->
         <delete file="${jboss.home}/server/${jboss.server.configuration}/deploy/ejb2-container-jboss-beans.xml" />
-
-        <!--  ***      now that nothing is utilizing Hypersonic ... get rid of hsql connection pool    ********      -->
-        <delete file="${jboss.home}/server/${jboss.server.configuration}/deploy/hsqldb-ds.xml" />
 
         <delete dir="${jboss.server.deploy.dir}/jbpm.esb/" />
         <delete dir="${jboss.server.deploy.dir}/spring.esb" />

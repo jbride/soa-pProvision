@@ -63,7 +63,7 @@
       <property name="hibernate.archive.autodetection" value="class"/>
       <property name="hibernate.show_sql" value="false"/>
 
-      <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect" />
+      <property name="hibernate.dialect" value="${hibernate.dialect}" />
     </properties>
   </persistence-unit>
 </persistence>

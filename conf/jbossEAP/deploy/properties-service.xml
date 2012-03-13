@@ -57,6 +57,8 @@
         org.jboss.spp.http.server.ip=${org.jboss.spp.http.server.ip}
         org.jboss.spp.http.server.port=${org.jboss.spp.http.server.port}
 
+        hibernate.dialect=${hibernate.dialect}
+
         esb_connection_url=${esb_connection_url}
         esb_driver_class=${esb_driver_class}
         esb_db_user=${esb_db_user}
