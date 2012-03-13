@@ -120,7 +120,7 @@ USAGE
                 NOTE:  do not download the 'SOA Standalone 5.*'  ... 
                      - this distro only comes with the 'default' configuration which is a problem if using mod_cluster
 
-            -- unzip $JBP_HOME/downloads/soa-5.1.0.GA.zip -d $JBP_HOME/jboss
+            -- unzip $JBP_HOME/downloads/soa-5.2.0.GA.zip -d $JBP_HOME/jboss
 
 
         --  HornetQ

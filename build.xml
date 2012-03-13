@@ -230,7 +230,7 @@
             <fileset dir="${jboss.home}/server/all/deploy/cluster/jgroups-channelfactory.sar" />
         </copy>
 
-        <copy file="${mod.cluster.home}/demo/server/load-demo.war" toDir="${jboss.server.deploy.dir}" verbose="true" />
+        <copy file="${mod.cluster.home}/demo/server/mod_cluster-demo-server-${mod.cluster.version}.war" toDir="${jboss.server.deploy.dir}" verbose="true" />
         
     </target>
 
@@ -240,7 +240,6 @@
                                 clone.jboss,
                                 eap-config,
                                 esb-config,
-                                hornetq-soa-p-config,
-                                addModCluster" 
+                                hornetq-soa-p-config"
     />
 </project>

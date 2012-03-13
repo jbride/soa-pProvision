@@ -6,10 +6,11 @@ if [ -f /etc/bashrc ]; then
 fi
 
 JAVA_HOME=/usr/lib/jvm/java-1.6.0
-JBOSS_HOME=/opt/jboss-soa-p-standalone-5/jboss-esb
+JBOSS_HOME=/opt/jboss-soa-p-5/jboss-as
 ANT_HOME=/opt/apache-ant-1.8.2
 HORNETQ_HOME=/hornetq_journal/hornetq-2.2.5.Final
-SPP_HOME=/opt/jbossProvision/soa-pProvision
+JBP_HOME=/opt/jbossProvision
+SPP_HOME=$JBP_HOME/soa-pProvision
 
 PATH=$PATH:/sbin
 PATH=$PATH:/usr/sbin
@@ -19,6 +20,7 @@ PATH=$PATH:$ANT_HOME/bin
 PATH=$PATH:$HORNETQ_HOME/bin
 PATH=$PATH:$SPP_HOME/bin
 
+export JAVA_HOME JBOSS_HOME ANT_HOME HORNETQ_HOME JBP_HOME SPP_HOME
 
 GIT_COMPLETION_PATH="/home/jboss/.git_completion"
 if [ -f "$GIT_COMPLETION_PATH" ]; then
@@ -33,6 +35,3 @@ else
       PS1="\[\033[01;32m\]\u@\h\[\033[01;34m\] \w\[\033[33m\]$ADD_PS1\[\033[34m\] \$\[\033[00m\] "
 fi
 
-export JAVA_HOME JBOSS_HOME ANT_HOME HORNETQ_HOME SPP_HOME
-
-# User specific aliases and functions
