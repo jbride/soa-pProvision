@@ -31,11 +31,16 @@
   <queue name="DLQ">
     <entry name="/queue/DLQ"/>
   </queue>
-  <queue name="ExpiryQueue">
-    <entry name="/queue/ExpiryQueue"/>
+  <queue name="testQueue.gw">
+    <entry name="/queue/testQueue.gw"/>
   </queue>
-  <queue name="spp.policyQuote">
+  <queue name="testQueue_${ENV.HOSTNAME}">
+    <entry name="/queue/testQueue"/>
+  </queue>
+  <queue name="spp.policyQuote.gw">
+    <entry name="/queue/spp.policyQuote.gw"/>
+  </queue>
+  <queue name="spp.policyQuote.${ENV.HOSTNAME}">
     <entry name="/queue/spp.policyQuote"/>
   </queue>
-
 </configuration>
