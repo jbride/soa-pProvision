@@ -19,17 +19,19 @@ DESIGN REQUIREMENTS :
 
 
 USAGE
-    -- pre-requisites 
-        -- NOTE:  almost all of the following tasks can (and should probably be) automated via a kickstart provisioning script
+    NOTE:  almost all of the following tasks can (and should probably be) automated via a kickstart provisioning script
 
-        -- Red Hat Network registration
+
+
+    Red Hat Network registration
                 -- set web proxy for rhn_register
                     -- (as root)    vi /etc/sysconfig/rhn/up2date
                                         enableProxy=1
-                                        httpProxy=http://web-proxy.houston.hp.com:8080
+                                        httpProxy=http://<web proxy url>
                 (as root) :     rhn_register
 
-	--  RHN channel modifications
+
+    RHN channel modifications
 	    -- after system registration is complete, open any browser (from any computer) and log into http://rhn.redhat.com
 	    -- select your system and then click 'Alter Channel Subscriptions".  Select the following channels and click 'change subscriptions'
 	    	Base Channel
@@ -40,15 +42,23 @@ USAGE
 		    * JBoss EWP (v 5.x) for x86_64
 	    -- logout of Red Hat Network
 
-        --  Java Development Kit
-            -- ensure that either OpenJDK or Sun JDK 1.6 is installed
+
+    Java Development Kit
+        -- ensure that either OpenJDK or Sun JDK 1.6 is installed
                 (as root) :     yum install java-1.6.0-openjdk
                                 yum install java-1.6.0-openjdk-devel
 			or
 				yum install java-1.6.0-sun
 				yum install java-1.6.0-sun-devel
 
-    --  Apache Ant 
+
+
+    miscellaneous
+            (as root)   :   yum install git wget
+
+
+
+    Apache Ant 
         -- this project requires Apache Ant v. 1.8.2 along with the ant-contrib library
         -- if Ant v. 1.8.2 is not already installed, download from the following : http://ant.apache.org/bindownload.cgi
 
@@ -61,13 +71,15 @@ USAGE
                     mv $PFP_HOME/processFlowProvision/lib/ant-contrib-1.0b3.jar $PFP_HOME/apache-ant-1.8.2/lib
         
 
-    --  'jboss' operating system user
+
+    'jboss' operating system user
         -- this procedure assumes an operating system user called 'jboss' that has non-root privledges
             (as root) :     useradd -g users -u 600 -m -d /home/jboss -s /bin/bash jboss
             (as root) :     passwd jboss
 
 
-        --  $JBP_HOME directory
+
+    $JBP_HOME directory
             -- make a '/opt/jbossProvision' directory and have it owned by jboss:jboss
                 (as root) :     mkdir /opt/jbossProvision
                                 chown -R jboss:jboss /opt/jbossProvision
@@ -75,19 +87,24 @@ USAGE
             -- create a 'downloads' directory
                 (as jboss) :    mkdir $JBP_HOME/downloads
 
-        --  git
-            (as root)   :   yum install git
 
-        --  soa-pProvision project
+
+    'jboss' environment variables
+            (as jboss):  cp conf/shell/bashrc ~/.bashrc
+                            source ~/.bashrc
+
+
+
+    soa-pProvision project
             -- pull this project from github
             (as jboss)   :   cd $JBP_HOME
+                             git clone git://github.com/jbride/soa-pProvision.git
                              
 
-        --  'jboss' environment variables
-                (as jboss):  cp conf/shell/bashrc ~/.bashrc
-                                source ~/.bashrc
 
-        --  postgresql RDBMS
+
+
+    postgresql RDBMS
                 (as root) :     yum install postgresql84\*
                                 yum install postgresql-jdbc
             --  ensure that postgresql 'service' is on at runlevels 2,3,4 & 5
@@ -105,14 +122,20 @@ USAGE
                 createdb esb 
                 createdb bpel 
             -- as 'postgres' user, create users and passwords in postgresql RDBMS
-                psql -d postgres -f /u01/app/sop/bplaneProvision/conf/postgresql/bplaneProvision.sql
+                psql -d postgres -f $JBP_HOME/soa-pProvision/conf/postgresql/soa-pProvision.sql
 `
-        
-        --  firewall configuration
-            -- ensure the iptables firewall allows Tomcat, HornetQ and JNP traffic
-                (as jboss) :     cp $JBP_HOME/bplaneProvision/conf/iptables/iptables /etc/sysconfig
+            -- bounce postgresql RDBMS service
+                (as root)  :    service postgresql restart
 
-        --  Red Hat/JBoss SOA-P
+       
+ 
+    firewall configuration
+            -- ensure the iptables firewall allows Tomcat, HornetQ and JNP traffic
+                (as jboss) :     cp $JBP_HOME/soa-pProvision/conf/iptables/iptables /etc/sysconfig
+
+
+
+    Red Hat/JBoss SOA-P
             -- mkdir $JBP_HOME/jboss
             -- download the latest 'SOA Platform 5.*' from and place in $JBP_HOME/downloads :  
                 https://access.redhat.com/jbossnetwork/restricted/listSoftware.html?downloadType=distributions&product=soaplatform&productChanged=yes
@@ -123,18 +146,32 @@ USAGE
             -- unzip $JBP_HOME/downloads/soa-5.2.0.GA.zip -d $JBP_HOME/jboss
 
 
-        --  HornetQ
-            -- this build procedure assumes a stand-alone clustered HornetQ installed on a partition called '/rdm_journal'
-            -- in eLabs, '/rdm_journal' is mounted on a SAN for High Availability / fail-over support
-            -- if provisioning this environment outside of eLabs, then '/rdm_journal' can simply be a physical partition on a local disk
-           
-            -- sudo mkdir -p /rdm_journal/jboss
-            -- sudo chown -R jboss:users /rdm_journal
-            -- (as jboss)    scp jboss@usplsvulx277:/u01/app/sop/downloads/hornetq-2.2.2.Final.tar.gz $JBP_HOME/downloads/hornetq-2.2.2.Final.tar.gz
-            -- (as jboss)    tar -zxvf $JBP_HOME/downloads/hornetq-2.2.2.Final.tar.gz -C /rdm_journal/jboss
 
-        -- route HornetQ broadcast traffic to a specific network interface card
-            -- route add -net 231.0.0.0 netmask 255.0.0.0 eth0
+    download HornetQ broker
+            -- this build procedure assumes a stand-alone clustered HornetQ installed on a partition called '/hornetq_journal'
+           
+            -- sudo mkdir -p /hornetq_journal/jboss
+            -- sudo chown -R jboss:users /hornetq_journal
+            -- (as jboss)    cd $JBP_HOME/downloads/
+                             wget http://downloads.jboss.org/hornetq/hornetq-2.2.5.Final.tar.gz
+                             tar -zxvf $JBP_HOME/downloads/hornetq-2.2.2.Final.tar.gz -C /hornetq_journal
+
+            -- route HornetQ broadcast traffic to a specific network interface card
+                -- route add -net 231.0.0.0 netmask 255.0.0.0 eth0
+
+
+
+    configure SOA-P
+        (as jboss)  cd $JBP_HOME/soa-pProvision
+                    vi build.properties (modify properties as appropriate)
+                    ant
+
+
+
+    configure Hornetq broker
+        (as jboss)  cd $JBP_HOME/soa-pProvision
+                    vi build.properties (modify properties as appropriate)
+                    ant hornetq-server-config
 
 
     mod_cluster
@@ -157,14 +194,11 @@ USAGE
             -- use this template when modifying /etc/httpd/conf/httpd.conf
 
         -- add mod_cluster.sar to jboss runtime
-            -- ant addModCluster
-       
-    -- initiate provisioning of a target SOA-P
-        -- review/edit the properties at the top of the 'build.xml' at this project's root
-        --  execute :   ant
+            (as jboss)  cd $JBP_HOME/soa-pProvision
+                        ant addModCluster
+      
+ 
 
-    -- bounce postgresql RDBMS service
-            (as root)  :    service postgresql restart
 
     -- start SOA-P and tail the server log file.  Ensure that no exceptions have been thrown at boot-up
 

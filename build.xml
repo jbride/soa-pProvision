@@ -224,7 +224,7 @@
         NOTE:  will use 'clustered' config of mod_cluster ..... which requires the use of HAParition
             will copy appropriate HAPartition stuff from JBoss 'all' config
     -->
-    <target name="addModCluster" description="" depends="install.mod.cluster" >
+    <target name="addModCluster" description="configures JBoss with mod_cluster and jgroups" depends="install.mod.cluster" >
         <copy overwrite="true" file="conf/jbossweb.sar/server.xml" toDir="${jboss.server.deploy.dir}/jbossweb.sar" verbose="true" />
         <copy toDir="${jboss.server.deploy.dir}/mod_cluster-1.1.1.sar" overwrite="true" verbose="true" >
             <fileset dir="${mod.cluster.home}/mod_cluster.sar" />
@@ -246,7 +246,7 @@
     </target>
 
 
-    <target name="soa-p" description="configures SOA-P" depends="checkESB,
+    <target name="soa-p" depends="checkESB,
                                 clean,
                                 clone.jboss,
                                 eap-config,
