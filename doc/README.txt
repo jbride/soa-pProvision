@@ -68,7 +68,7 @@ USAGE
 
                 -- move ant-contrib*.jar to $ANT_HOME/lib
                 (as jboss):
-                    mv $PFP_HOME/processFlowProvision/lib/ant-contrib-1.0b3.jar $PFP_HOME/apache-ant-1.8.2/lib
+                    mv $SPP_HOME/lib/ant/ant-contrib-1.0b3.jar $PFP_HOME/apache-ant-1.8.2/lib
         
 
 
