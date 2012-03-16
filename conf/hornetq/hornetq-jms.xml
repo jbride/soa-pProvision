@@ -31,6 +31,9 @@
   <queue name="DLQ">
     <entry name="/queue/DLQ"/>
   </queue>
+  <queue name="controlQueue">
+    <entry name="/queue/controlQueue"/>
+  </queue>
   <queue name="testQueue.gw">
     <entry name="/queue/testQueue.gw"/>
   </queue>
