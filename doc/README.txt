@@ -119,8 +119,10 @@ USAGE
                                 service postgresql start
             --  swith user to 'postgres' and create necessary databases
                 su - postgres
-                createdb esb 
                 createdb bpel 
+                createdb poc 
+                createdb esb  // NOTE:  create an 'esb' schema for each SOA-P node in environment
+
             -- as 'postgres' user, create users and passwords in postgresql RDBMS
                 psql -d postgres -f $JBP_HOME/soa-pProvision/conf/postgresql/soa-pProvision.sql
 `
