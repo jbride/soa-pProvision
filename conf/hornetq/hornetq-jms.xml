@@ -46,4 +46,26 @@
   <queue name="spp.policyQuote.${ENV.HOSTNAME}">
     <entry name="/queue/spp.policyQuote"/>
   </queue>
+
+  <queue name="messageSubQueue_${ENV.HOSTNAME}">
+    <entry name="/queue/messageSubQueue"/>
+  </queue>
+  <queue name="messageSubGWQueue">
+    <entry name="/queue/messageSubGWQueue"/>
+  </queue>
+  <queue name="wsQueue">
+    <entry name="/queue/wsQueue"/>
+  </queue>
+  <queue name="wsEsbQueue_${ENV.HOSTNAME}">
+    <entry name="/queue/wsEsbQueue"/>
+  </queue>
+  <queue name="ReceiveJms_esb_${ENV.HOSTNAME}">
+    <entry name="/queue/ReceiveJms_esb"/>
+  </queue>
+  <queue name="ReceiveJms_esb_reply_${ENV.HOSTNAME}">
+    <entry name="/queue/ReceiveJms_esb_reply"/>
+  </queue>
+  <queue name="ReceiveJms_gw">
+    <entry name="/queue/ReceiveJms_gw"/>
+  </queue>
 </configuration>
