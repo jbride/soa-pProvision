@@ -58,20 +58,6 @@ USAGE
 
 
 
-    Apache Ant 
-        -- this project requires Apache Ant v. 1.8.2 along with the ant-contrib library
-        -- if Ant v. 1.8.2 is not already installed, download from the following : http://ant.apache.org/bindownload.cgi
-
-        -- upon completion of download, unzip apache-ant-1.8.2-bin.zip  to the '$PFP_HOME/' directory
-                (as jboss):
-                    unzip $PFP_HOME/downloads/apache-ant-1.8.2-bin.zip -d $PFP_HOME/
-
-                -- move ant-contrib*.jar to $ANT_HOME/lib
-                (as jboss):
-                    mv $SPP_HOME/lib/ant/ant-contrib-1.0b3.jar $PFP_HOME/apache-ant-1.8.2/lib
-        
-
-
     'jboss' operating system user
         -- this procedure assumes an operating system user called 'jboss' that has non-root privledges
             (as root) :     useradd -g users -u 600 -m -d /home/jboss -s /bin/bash jboss
@@ -92,6 +78,21 @@ USAGE
     'jboss' environment variables
             (as jboss):  cp conf/shell/bashrc ~/.bashrc
                             source ~/.bashrc
+
+
+
+    Apache Ant 
+        -- this project requires Apache Ant v. 1.8.2 along with the ant-contrib library
+        -- if Ant v. 1.8.2 is not already installed, download from the following : http://ant.apache.org/bindownload.cgi
+
+        -- upon completion of download, unzip apache-ant-1.8.2-bin.zip  to the '$JBP_HOME/' directory
+                (as jboss):
+                    unzip $JBP_HOME/downloads/apache-ant-1.8.2-bin.zip -d $JBP_HOME/
+
+                -- move ant-contrib*.jar to $ANT_HOME/lib
+                (as jboss):
+                    mv $SPP_HOME/lib/ant/ant-contrib-1.0b3.jar $JBP_HOME/apache-ant-1.8.2/lib
+        
 
 
 
@@ -181,7 +182,6 @@ USAGE
         -- documentation for mod_cluster can be found here :    http://docs.jboss.org/mod_cluster/1.2.0/html_single/
         -- download the following two gzipped archives to /tmp :
             -- cd /tmp
-            -- wget http://downloads.jboss.org/mod_cluster//1.2.0.Final/mod_cluster-1.2.0.Final-bin.tar.gz
             -- wget http://downloads.jboss.org/mod_cluster//1.2.0.Final/mod_cluster-1.2.0.Final-linux2-x64-so.tar.gz
 
         -- install httpd
@@ -196,7 +196,9 @@ USAGE
             -- use this template when modifying /etc/httpd/conf/httpd.conf
 
         -- add mod_cluster.sar to jboss runtime
-            (as jboss)  cd $JBP_HOME/soa-pProvision
+            (as jboss)  cd /tmp
+                        wget http://downloads.jboss.org/mod_cluster//1.2.0.Final/mod_cluster-1.2.0.Final-bin.tar.gz 
+                        cd $JBP_HOME/soa-pProvision
                         ant addModCluster
       
  
