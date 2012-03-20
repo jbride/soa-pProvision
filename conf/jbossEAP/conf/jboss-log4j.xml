@@ -194,6 +194,10 @@
       <priority value="WARN"/>
       <appender-ref ref="FILE"/>
    </category>
+    <category name="com.arjuna.ats.jta.logging.loggerI18N">
+      <priority value="ERROR"/>
+      <appender-ref ref="FILE"/>
+   </category>
    
    <!-- Limit the jacorb category to WARN as its INFO is verbose -->
    <category name="jacorb">
