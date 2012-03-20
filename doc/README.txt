@@ -204,7 +204,14 @@ USAGE
  
 
 
-    -- start SOA-P and tail the server log file.  Ensure that no exceptions have been thrown at boot-up
+    -- start SOA-P and tail the server log file
+        - there are SOA-P and Hornetq start/stop scripts located in $JBP_HOME/soa-pProvision/bin
+        - if $JBP_HOME/soa-pProvision/conf/shell/bashrc was used as a template to set the 'jboss' user's environment variables,
+            then these scripts will already be in the $PATH environement variable
+
+        (as jboss)  start_jboss.sh log
+
+        - Ensure that no exceptions have been thrown at boot-up
 
 
 preliminary JBoss Web Platform (JWP) installation notes
