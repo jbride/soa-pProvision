@@ -184,7 +184,7 @@
 
        
         <if>
-            <equals arg1="${use_postgres_for_esb_persistence}" arg2="true" />
+            <equals arg1="${use_H2_for_esb_persistence}" arg2="false" />
             <then>
                 <!-- ***************        juddi registry now to use PostgreSQL rather than Hypersonic  ******************         -->
                 <copy file="conf/soa-p/deploy/jbossesb-registry.sar/juddi-ds.xml" overwrite="true" 
