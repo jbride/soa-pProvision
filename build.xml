@@ -138,7 +138,10 @@
         <!-- *************      change EJB2 and EJB3 Timers to use postgresql ******************  -->
         <copy file="conf/jbossEAP/deploy/ejb2-timer-service.xml" toDir="${jboss.server.deploy.dir}" overwrite="true" />
 
-        <copy file="conf/jbossEAP/run.conf" overwrite="true" todir="${jboss.server.conf.dir}"/>
+        <antcall target="filter_file">
+            <param name="file.name" value="conf/jbossEAP/run.conf"/>
+            <param name="to.dir.name" value="${jboss.home}/server/${jboss.server.configuration}"/>
+        </antcall>
 
         <antcall target="filter_file">
             <param name="file.name" value="conf/jbossEAP/deploy/poc-ds.xml"/>
