@@ -214,7 +214,10 @@ USAGE
         - Ensure that no exceptions have been thrown at boot-up
 
 
-preliminary JBoss Web Platform (JWP) installation notes
-    -- (as root) yum install httpd jbossas-web-5.1.0-bin mod_cluster-native mod_cluster-jbossweb2
-    		 cp -r /usr/share/java/mod-cluster.sar /opt/jbossas-web-5.1.0/server/default/deploy
+    -- test mod_cluster
+        -- read :  http://docs.jboss.org/mod_cluster/1.2.0/html_single/#demo
+        -- cd $JBP_HOME/mod_cluster-1.2.0.Final/demo/client
+        -- chmod 777 run-demo.sh
+        -- ./run-demo.sh
+
 

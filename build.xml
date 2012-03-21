@@ -228,8 +228,8 @@
             will copy appropriate HAPartition stuff from JBoss 'all' config
     -->
     <target name="addModCluster" description="configures JBoss with mod_cluster and jgroups" depends="install.mod.cluster" >
-        <copy overwrite="true" file="conf/jbossweb.sar/server.xml" toDir="${jboss.server.deploy.dir}/jbossweb.sar" verbose="true" />
-        <copy toDir="${jboss.server.deploy.dir}/mod_cluster-1.1.1.sar" overwrite="true" verbose="true" >
+        <!-- <copy overwrite="true" file="conf/jbossweb.sar/server.xml" toDir="${jboss.server.deploy.dir}/jbossweb.sar" verbose="true" /> -->
+        <copy toDir="${jboss.server.deploy.dir}/cluster/mod_cluster-1.1.1.sar" overwrite="true" verbose="true" >
             <fileset dir="${mod.cluster.home}/mod_cluster.sar" />
         </copy>
 
@@ -244,7 +244,7 @@
             <fileset dir="${jboss.home}/server/all/deploy/cluster/jgroups-channelfactory.sar" />
         </copy>
 
-        <copy file="${mod.cluster.home}/demo/server/mod_cluster-demo-server-${mod.cluster.version}.war" toDir="${jboss.server.deploy.dir}" verbose="true" />
+        <copy file="${mod.cluster.home}/demo/server/mod_cluster-demo-server-${mod.cluster.version}.war" toDir="${jboss.server.deploy.dir}/cluster/" verbose="true" />
         
     </target>
 
