@@ -200,7 +200,13 @@ USAGE
                         wget http://downloads.jboss.org/mod_cluster//1.2.0.Final/mod_cluster-1.2.0.Final-bin.tar.gz 
                         cd $JBP_HOME/soa-pProvision
                         ant addModCluster
-      
+     
+
+    -- start hornetq broker and tail the hornetq log file 
+        - there are SOA-P and Hornetq start/stop scripts located in $JBP_HOME/soa-pProvision/bin
+        (as jboss)  start_hornetq.sh log
+
+        - Ensure that no exceptions have been thrown at boot-up
  
 
 
