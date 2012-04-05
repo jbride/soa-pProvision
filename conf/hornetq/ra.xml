@@ -54,7 +54,7 @@ Copyright 2009 Red Hat, Inc.
          <config-property-type>java.lang.String</config-property-type>
 
         <!-- JA Bride :  changing to remote url of HornetQ netty connector  -->
-         <config-property-value>host=${HOSTNAME};port=5545</config-property-value>
+         <config-property-value>host=${hornetq_ip};port=${hornetq.remoting.netty.port}</config-property-value>
          <!-- <config-property-value>server-id=0</config-property-value> -->
       </config-property>
       <!--

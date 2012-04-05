@@ -27,7 +27,7 @@
       <config-property name="SessionDefaultType" type="java.lang.String">javax.jms.Queue</config-property>
 
       <config-property name="ConnectorClassName" type="String">org.hornetq.core.remoting.impl.netty.NettyConnectorFactory</config-property>
-      <config-property name="ConnectionParameters" type="String">host=${HOSTNAME};port=5445</config-property>
+      <config-property name="ConnectionParameters" type="String">host=${hornetq_ip};port=${hornetq.remoting.netty.port}</config-property>
       <max-pool-size>20</max-pool-size>
       <config-property name="hA" type="java.lang.Boolean">true</config-property>
 

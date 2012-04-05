@@ -40,6 +40,9 @@
   <queue name="testQueue_${ENV.HOSTNAME}">
     <entry name="/queue/testQueue"/>
   </queue>
+  <queue name="testTopic.gw">
+    <entry name="/topic/testTopic.gw"/>
+  </queue>
   <queue name="spp.policyQuote.gw">
     <entry name="/queue/spp.policyQuote.gw"/>
   </queue>
