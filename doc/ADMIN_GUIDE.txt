@@ -2,24 +2,10 @@ soa-p provisioing
 
 JA Bride
 
-PURPOSE :   automate configuration, slimming and tuning of an "optimal" Red Hat/JBoss SOA-Platform
-
-NOTE    :   this project has been developed and tested for use with the Red Hat/JBoss SOA-P 5.2.0.GA on either 64 bit RHEL 5.5 or RHEL 6
-
-DESIGN REQUIREMENTS :
-    --  outline the procedure for provisioning a SOA-P environment on RHEL 5.5 or RHEL 6
-    --  using the 'default' SOA-P runtime as a template, create a new SOA-P runtime config called 'default-bplane'
-    --  remove all use of default Hypersonic database in SOA-Platform
-    --  point SOA-P services requiring an RDBMS to a postgresql database
-    --  remove the following services from a SOA-P run-time
-        -- ESB message store
-        -- jbpm service
-        -- JBoss Messaging
-        -- spring service
-
 
 USAGE
     NOTE:  almost all of the following tasks can (and should probably be) automated via a kickstart provisioning script
+    NOTE    :   this project has been developed and tested for use with the Red Hat/JBoss SOA-P 5.2.0.GA on either 64 bit RHEL 5.5 or RHEL 6
 
 
 
@@ -65,13 +51,13 @@ USAGE
 
 
 
-    $JBP_HOME directory
+    $JBOSS_PROJECTS directory
             -- make a '/opt/jbossProvision' directory and have it owned by jboss:jboss
                 (as root) :     mkdir /opt/jbossProvision
                                 chown -R jboss:jboss /opt/jbossProvision
 
             -- create a 'downloads' directory
-                (as jboss) :    mkdir $JBP_HOME/downloads
+                (as jboss) :    mkdir $JBOSS_PROJECTS/downloads
 
 
 
@@ -85,20 +71,20 @@ USAGE
         -- this project requires Apache Ant v. 1.8.2 along with the ant-contrib library
         -- if Ant v. 1.8.2 is not already installed, download from the following : http://ant.apache.org/bindownload.cgi
 
-        -- upon completion of download, unzip apache-ant-1.8.2-bin.zip  to the '$JBP_HOME/' directory
+        -- upon completion of download, unzip apache-ant-1.8.2-bin.zip  to the '$JBOSS_PROJECTS/' directory
                 (as jboss):
-                    unzip $JBP_HOME/downloads/apache-ant-1.8.2-bin.zip -d $JBP_HOME/
+                    unzip $JBOSS_PROJECTS/downloads/apache-ant-1.8.2-bin.zip -d $JBOSS_PROJECTS/
 
                 -- move ant-contrib*.jar to $ANT_HOME/lib
                 (as jboss):
-                    mv $SPP_HOME/lib/ant/ant-contrib-1.0b3.jar $JBP_HOME/apache-ant-1.8.2/lib
+                    mv $SPP_HOME/lib/ant/ant-contrib-1.0b3.jar $JBOSS_PROJECTS/apache-ant-1.8.2/lib
         
 
 
 
     soa-pProvision project
             -- pull this project from github
-            (as jboss)   :   cd $JBP_HOME
+            (as jboss)   :   cd $JBOSS_PROJECTS
                              git clone git://github.com/jbride/soa-pProvision.git
                              
 
@@ -125,7 +111,7 @@ USAGE
                 createdb esb  // NOTE:  create an 'esb' schema for each SOA-P node in environment
 
             -- as 'postgres' user, create users and passwords in postgresql RDBMS
-                psql -d postgres -f $JBP_HOME/soa-pProvision/conf/postgresql/soa-pProvision.sql
+                psql -d postgres -f $JBOSS_PROJECTS/soa-pProvision/conf/postgresql/soa-pProvision.sql
 `
             -- bounce postgresql RDBMS service
                 (as root)  :    service postgresql restart
@@ -134,19 +120,19 @@ USAGE
  
     firewall configuration
             -- ensure the iptables firewall allows Tomcat, HornetQ and JNP traffic
-                (as jboss) :     cp $JBP_HOME/soa-pProvision/conf/iptables/iptables /etc/sysconfig
+                (as jboss) :     cp $JBOSS_PROJECTS/soa-pProvision/conf/iptables/iptables /etc/sysconfig
 
 
 
     Red Hat/JBoss SOA-P
-            -- mkdir $JBP_HOME/jboss
-            -- download the latest 'SOA Platform 5.*' from and place in $JBP_HOME/downloads :  
+            -- mkdir $JBOSS_PROJECTS/jboss
+            -- download the latest 'SOA Platform 5.*' from and place in $JBOSS_PROJECTS/downloads :  
                 https://access.redhat.com/jbossnetwork/restricted/listSoftware.html?downloadType=distributions&product=soaplatform&productChanged=yes
 
                 NOTE:  do not download the 'SOA Standalone 5.*'  ... 
                      - this distro only comes with the 'default' configuration which is a problem if using mod_cluster
 
-            -- unzip $JBP_HOME/downloads/soa-5.2.0.GA.zip -d $JBP_HOME/jboss
+            -- unzip $JBOSS_PROJECTS/downloads/soa-5.2.0.GA.zip -d $JBOSS_PROJECTS/jboss
 
 
 
@@ -155,9 +141,9 @@ USAGE
            
             -- sudo mkdir -p /hornetq_journal/jboss
             -- sudo chown -R jboss:users /hornetq_journal
-            -- (as jboss)    cd $JBP_HOME/downloads/
+            -- (as jboss)    cd $JBOSS_PROJECTS/downloads/
                              wget http://downloads.jboss.org/hornetq/hornetq-2.2.5.Final.tar.gz
-                             tar -zxvf $JBP_HOME/downloads/hornetq-2.2.2.Final.tar.gz -C /hornetq_journal
+                             tar -zxvf $JBOSS_PROJECTS/downloads/hornetq-2.2.2.Final.tar.gz -C /hornetq_journal
 
             -- route HornetQ broadcast traffic to a specific network interface card
                 -- route add -net 231.0.0.0 netmask 255.0.0.0 eth0
@@ -165,14 +151,14 @@ USAGE
 
 
     configure SOA-P
-        (as jboss)  cd $JBP_HOME/soa-pProvision
+        (as jboss)  cd $JBOSS_PROJECTS/soa-pProvision
                     vi build.properties (modify properties as appropriate)
                     ant
 
 
 
     configure Hornetq broker
-        (as jboss)  cd $JBP_HOME/soa-pProvision
+        (as jboss)  cd $JBOSS_PROJECTS/soa-pProvision
                     vi build.properties (modify properties as appropriate)
                     ant hornetq-server-config
 
@@ -198,12 +184,12 @@ USAGE
         -- add mod_cluster.sar to jboss runtime
             (as jboss)  cd /tmp
                         wget http://downloads.jboss.org/mod_cluster//1.2.0.Final/mod_cluster-1.2.0.Final-bin.tar.gz 
-                        cd $JBP_HOME/soa-pProvision
+                        cd $JBOSS_PROJECTS/soa-pProvision
                         ant addModCluster
      
 
     -- start hornetq broker and tail the hornetq log file 
-        - there are SOA-P and Hornetq start/stop scripts located in $JBP_HOME/soa-pProvision/bin
+        - there are SOA-P and Hornetq start/stop scripts located in $JBOSS_PROJECTS/soa-pProvision/bin
         (as jboss)  start_hornetq.sh log
 
         - Ensure that no exceptions have been thrown at boot-up
@@ -211,8 +197,8 @@ USAGE
 
 
     -- start SOA-P and tail the server log file
-        - there are SOA-P and Hornetq start/stop scripts located in $JBP_HOME/soa-pProvision/bin
-        - if $JBP_HOME/soa-pProvision/conf/shell/bashrc was used as a template to set the 'jboss' user's environment variables,
+        - there are SOA-P and Hornetq start/stop scripts located in $JBOSS_PROJECTS/soa-pProvision/bin
+        - if $JBOSS_PROJECTS/soa-pProvision/conf/shell/bashrc was used as a template to set the 'jboss' user's environment variables,
             then these scripts will already be in the $PATH environement variable
 
         (as jboss)  start_jboss.sh log
@@ -222,7 +208,7 @@ USAGE
 
     -- test mod_cluster
         -- read :  http://docs.jboss.org/mod_cluster/1.2.0/html_single/#demo
-        -- cd $JBP_HOME/mod_cluster-1.2.0.Final/demo/client
+        -- cd $JBOSS_PROJECTS/mod_cluster-1.2.0.Final/demo/client
         -- chmod 777 run-demo.sh
         -- ./run-demo.sh
 

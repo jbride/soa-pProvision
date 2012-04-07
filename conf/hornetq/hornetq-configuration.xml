@@ -55,7 +55,7 @@
    </acceptors>
 
    <broadcast-groups>
-      <broadcast-group name="bg-hp-sop">
+      <broadcast-group name="bg-org-jboss-spp">
          <group-address>231.7.7.7</group-address>
          <group-port>9876</group-port>
          <broadcast-period>5000</broadcast-period>
@@ -64,7 +64,7 @@
    </broadcast-groups>
 
    <discovery-groups>
-      <discovery-group name="dg-hp-sop">
+      <discovery-group name="dg-org-jboss-spp">
          <group-address>231.7.7.7</group-address>
          <group-port>9876</group-port>
          <refresh-timeout>10000</refresh-timeout>
@@ -72,10 +72,10 @@
    </discovery-groups>
    
    <cluster-connections>
-      <cluster-connection name="com-hp-sop-cluster">
+      <cluster-connection name="org-jboss-spp-cluster">
          <address>jms</address>	 
          <connector-ref>netty</connector-ref>
-         <discovery-group-ref discovery-group-name="dg-hp-sop"/>
+         <discovery-group-ref discovery-group-name="org-jboss-spp"/>
       </cluster-connection>
    </cluster-connections>
    

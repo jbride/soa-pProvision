@@ -5,7 +5,7 @@
       <role name="guest"/>
    </defaultuser>
 
-    <user name="hpAdmin" password="camembert">
+    <user name="sppAdmin" password="camembert">
         <role name="admin"/>
         <role name="guest"/>
     </user>
