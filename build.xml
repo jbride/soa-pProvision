@@ -2,12 +2,7 @@
 
     <property environment="ENV"/>
     <property file="build.properties" />
-
-    <!--- NOTE:  found in ant-contrib project
-                 - now using for the use of 'var' tasks in subprojects where MUTABLE properties would be nice
-    -->
-    <taskdef resource="net/sf/antcontrib/antcontrib.properties"/>
-
+    <import file="base-build.xml" />
 
     <target name="checkjboss.server.configuration">
         <available file="${jboss.home}/server/${original.esb.server.runtime}/conf/jboss-service.xml" property="isjboss.server.configuration" />
@@ -37,21 +32,24 @@
     </target>
 
         <condition property="useHornetQ" >
-        <equals arg1="${org.jboss.processFlow.messagingProvider}" arg2="HORNETQ" />
+        <equals arg1="${org.jboss.spp.messagingProvider}" arg2="HORNETQ" />
     </condition>
     <target name="hornetq-server-config" depends="" description="configure standalone hornetq" if="useHornetQ" >
         <!--        ********************            modify various HornetQ provider configs         ************            -->
-        <antcall target="filter_file">
-            <param name="file.name" value="conf/hornetq/run.sh"/>
-            <param name="to.dir.name" value="${HORNETQ_HOME}/bin"/>
+        <antcall target="filter">
+            <param name="source.dir" value="conf/hornetq"/>
+            <param name="file.name" value="run.sh"/>
+            <param name="dest.dir" value="${HORNETQ_HOME}/bin"/>
         </antcall>
-        <antcall target="filter_file">
-            <param name="file.name" value="conf/hornetq/hornetq-configuration.xml"/>
-            <param name="to.dir.name" value="${HORNETQ_HOME}/config/stand-alone/clustered"/>
+        <antcall target="filter">
+            <param name="source.dir" value="conf/hornetq"/>
+            <param name="file.name" value="hornetq-configuration.xml"/>
+            <param name="dest.dir" value="${HORNETQ_HOME}/config/stand-alone/clustered"/>
         </antcall>
-        <antcall target="filter_file">
-            <param name="file.name" value="conf/hornetq/hornetq-jms.xml"/>
-            <param name="to.dir.name" value="${HORNETQ_HOME}/config/stand-alone/clustered"/>
+        <antcall target="filter">
+            <param name="source.dir" value="conf/hornetq"/>
+            <param name="file.name" value="hornetq-jms.xml"/>
+            <param name="dest.dir" value="${HORNETQ_HOME}/config/stand-alone/clustered"/>
         </antcall>
         <copy file="conf/hornetq/hornetq-users.xml" toDir="${HORNETQ_HOME}/config/stand-alone/clustered" overwrite="true" verbose="true" />
     </target>
@@ -77,41 +75,17 @@
 
         <!--        ******************          add hornetq JCA resource adapater configs       *************           -->
         <unjar src="${HORNETQ_HOME}/lib/hornetq-ra.rar" dest="${jboss.home}/server/${jboss.server.configuration}/deploy/hornetq-ra.rar" />
-        <antcall target="filter_file">
-            <param name="file.name" value="conf/hornetq/ra.xml"/>
-            <param name="to.dir.name" value="${jboss.server.deploy.dir}/hornetq-ra.rar/META-INF"/>
+        <antcall target="filter">
+            <param name="source.dir" value="conf/hornetq"/>
+            <param name="file.name" value="ra.xml"/>
+            <param name="dest.dir" value="${jboss.server.deploy.dir}/hornetq-ra.rar/META-INF"/>
         </antcall>
-        <antcall target="filter_file">
-            <param name="file.name" value="conf/jbossEAP/deploy/hornetq-jms-ds.xml"/>
-            <param name="to.dir.name" value="${jboss.server.deploy.dir}"/>
-        </antcall>
-    </target>
-
-        <condition property="useMRG" >
-        <equals arg1="${org.jboss.processFlow.messagingProvider}" arg2="MRG" />
-    </condition>
-    <target name="qpid_prep" if="useMRG" >
-        <antcall target="jboss.qpid.deploy" />
-        <antcall target="filter_file">
-            <param name="file.name" value="conf/jbossEAP/deploy/qpid-connection-factory-service.xml"/>
-            <param name="to.dir.name" value="${jboss.server.deploy.dir}/${organization.name}"/>
-        </antcall>
-        <antcall target="filter_file">
-            <param name="file.name" value="conf/jbossEAP/deploy/qpid-destinations-service.xml"/>
-            <param name="to.dir.name" value="${jboss.server.deploy.dir}/${organization.name}"/>
+        <antcall target="filter">
+            <param name="source.dir" value="conf/jbossEAP/deploy"/>
+            <param name="file.name" value="hornetq-jms-ds.xml"/>
+            <param name="dest.dir" value="${jboss.server.deploy.dir}"/>
         </antcall>
     </target>
-
-    <!-- expands properties in the specified file names -->
-    <target name="filter_file">
-        <copy file="${file.name}" toDir="${to.dir.name}" overwrite="true">
-            <filterchain>
-                <expandproperties/>
-            </filterchain>
-        </copy> 
-    </target>
-
-
 
     <target name="eap-config" depends="" >
         <mkdir dir="${runtime.lib.dir}" />
@@ -119,13 +93,15 @@
         <copy file="conf/soa-p/conf/soa-users.properties" overwrite="true" todir="${jboss.home}/server/${jboss.server.configuration}/conf/props" />
       
         <copy file="conf/jbossEAP/conf/jboss-log4j.xml" overwrite="true" todir="${jboss.server.conf.dir}"/>
-        <antcall target="filter_file">
-            <param name="file.name" value="conf/jbossEAP/conf/jboss-service.xml"/>
-            <param name="to.dir.name" value="${jboss.server.conf.dir}"/>
+        <antcall target="filter">
+            <param name="source.dir" value="conf/jbossEAP/conf"/>
+            <param name="file.name" value="jboss-service.xml"/>
+            <param name="dest.dir" value="${jboss.server.conf.dir}"/>
         </antcall>
-        <antcall target="filter_file">
-            <param name="file.name" value="conf/jbossEAP/deploy/properties-service.xml"/>
-            <param name="to.dir.name" value="${jboss.server.deploy.dir}"/>
+        <antcall target="filter">
+            <param name="source.dir" value="conf/jbossEAP/deploy"/>
+            <param name="file.name" value="properties-service.xml"/>
+            <param name="dest.dir" value="${jboss.server.deploy.dir}"/>
         </antcall>
 
         <copy file="conf/jbossEAP/deployers/ejb-deployer-jboss-beans.xml" overwrite="true" todir="${jboss.home}/server/${jboss.server.configuration}/deployers/"/>
@@ -138,14 +114,16 @@
         <!-- *************      change EJB2 and EJB3 Timers to use postgresql ******************  -->
         <copy file="conf/jbossEAP/deploy/ejb2-timer-service.xml" toDir="${jboss.server.deploy.dir}" overwrite="true" />
 
-        <antcall target="filter_file">
-            <param name="file.name" value="conf/jbossEAP/run.conf"/>
-            <param name="to.dir.name" value="${jboss.home}/server/${jboss.server.configuration}"/>
+        <antcall target="filter">
+            <param name="source.dir" value="conf/jbossEAP"/>
+            <param name="file.name" value="run.conf"/>
+            <param name="dest.dir" value="${jboss.home}/server/${jboss.server.configuration}"/>
         </antcall>
 
-        <antcall target="filter_file">
-            <param name="file.name" value="conf/jbossEAP/deploy/poc-ds.xml"/>
-            <param name="to.dir.name" value="${jboss.server.deploy.dir}"/>
+        <antcall target="filter">
+            <param name="source.dir" value="conf/jbossEAP/deploy"/>
+            <param name="file.name" value="poc-ds.xml"/>
+            <param name="dest.dir" value="${jboss.server.deploy.dir}"/>
         </antcall>
 
         <delete dir="${jboss.server.deploy.dir}/mail-ra-rar" />
@@ -162,9 +140,9 @@
         <copy file="conf/soa-p/deploy/jbossesb.esb/META-INF/deployment.xml" overwrite="true" todir="${jboss.server.deploy.dir}/jbossesb.esb/META-INF" />
         
         <!--    ***************             switch riftsaw to postgres      *******************************     -->
-        <antcall target="filter_file">
-            <param name="file.name" value="conf/soa-p/deploy/riftsaw.sar/META-INF/bpel-ds.xml"/>
-            <param name="to.dir.name" value="${jboss.server.deploy.dir}/riftsaw.sar/META-INF/"/>
+        <antcall target="filter">
+            <param name="source.dir" value="conf/soa-p/deploy/riftsaw.sar/META-INF"/>
+            <param name="dest.dir" value="${jboss.server.deploy.dir}/riftsaw.sar/META-INF/"/>
         </antcall>
         <copy file="conf/soa-p/deploy/riftsaw.sar/bpel.properties" overwrite="true" todir="${jboss.server.deploy.dir}/riftsaw.sar/" />
         <copy file="conf/soa-p/deploy/riftsaw.sar/META-INF/jboss-beans.xml" overwrite="true" todir="${jboss.server.deploy.dir}/riftsaw.sar/META-INF/" />
@@ -177,9 +155,9 @@
 
 
         <!-- **************     create new PostgrSQL datastore for ESB and juddi    *********************    -->
-        <antcall target="filter_file">
-            <param name="file.name" value="conf/soa-p/deploy/esb-ds.xml"/>
-            <param name="to.dir.name" value="${jboss.server.deploy.dir}"/>
+        <antcall target="filter">
+            <param name="source.dir" value="conf/soa-p/deploy"/>
+            <param name="dest.dir" value="${jboss.server.deploy.dir}"/>
         </antcall>
 
        
@@ -198,9 +176,9 @@
         <copy file="conf/soa-p/deployers/esb.deployer/jbossesb-properties.xml" overwrite="true" todir="${jboss.home}/server/${jboss.server.configuration}/deployers/esb.deployer" />
 
         <!--    ****************        wsdls should now point to Apache HTTPD           ************************            -->
-        <antcall target="filter_file">
-            <param name="file.name" value="conf/jbossEAP/deployers/jbossws.deployer/META-INF/jboss-beans.xml"/>
-            <param name="to.dir.name" value="${jboss.home}/server/${jboss.server.configuration}/deployers/jbossws.deployer/META-INF"/>
+        <antcall target="filter">
+            <param name="source.dir" value="conf/jbossEAP/deployers/jbossws.deployer/META-INF"/>
+            <param name="dest.dir" value="${jboss.home}/server/${jboss.server.configuration}/deployers/jbossws.deployer/META-INF"/>
         </antcall>
 
         <!--    ****************            remove ejb2 stuff                               ***************             -->
@@ -256,4 +234,5 @@
                                 esb-config,
                                 hornetq-soa-p-config"
     />
+
 </project>

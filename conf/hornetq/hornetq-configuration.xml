@@ -56,8 +56,8 @@
 
    <broadcast-groups>
       <broadcast-group name="bg-org-jboss-spp">
-         <group-address>231.7.7.7</group-address>
-         <group-port>9876</group-port>
+         <group-address>${org.jboss.spp.messaging.hornetQAddress}</group-address>
+         <group-port>${org.jboss.spp.messaging.hornetQPort}</group-port>
          <broadcast-period>5000</broadcast-period>
          <connector-ref>netty</connector-ref>
       </broadcast-group>
@@ -65,8 +65,8 @@
 
    <discovery-groups>
       <discovery-group name="dg-org-jboss-spp">
-         <group-address>231.7.7.7</group-address>
-         <group-port>9876</group-port>
+         <group-address>${org.jboss.spp.messaging.hornetQAddress}</group-address>
+         <group-port>${org.jboss.spp.messaging.hornetQPort}</group-port>
          <refresh-timeout>10000</refresh-timeout>
       </discovery-group>
    </discovery-groups>
@@ -75,7 +75,7 @@
       <cluster-connection name="org-jboss-spp-cluster">
          <address>jms</address>	 
          <connector-ref>netty</connector-ref>
-         <discovery-group-ref discovery-group-name="org-jboss-spp"/>
+         <discovery-group-ref discovery-group-name="dg-org-jboss-spp"/>
       </cluster-connection>
    </cluster-connections>
    

@@ -15,7 +15,6 @@ export CLUSTER_PROPS="-Djnp.port=1599 -Djnp.rmiPort=1598 -Djnp.host=$HOSTNAME -D
 
 # JA Bride :  enable jmx port for remote management
 export JVM_ARGS="$CLUSTER_PROPS -XX:+UseParallelGC -XX:+AggressiveOpts -XX:+UseFastAccessorMethods -Xms512M -Xmx1024M -Dhornetq.config.dir=$CONFIG_DIR -Djava.util.logging.config.file=$CONFIG_DIR/logging.properties -Djava.library.path=. -Dcom.sun.management.jmxremote.port=1597 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"
-#export JVM_ARGS="-Xmx512M -Djava.util.logging.config.file=$CONFIG_DIR/logging.properties -Dhornetq.config.dir=$CONFIG_DIR -Djava.library.path=. -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005"
 
 for i in `ls $HORNETQ_HOME/lib/*.jar`; do
 	CLASSPATH=$i:$CLASSPATH
