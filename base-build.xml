@@ -1,0 +1,58 @@
+<project name="soa-p-base" default="soa-p" basedir=".">
+
+    <!--- NOTE:  found in ant-contrib project
+                 - now using for the use of 'var' tasks in subprojects where MUTABLE properties would be nice
+    -->
+    <taskdef resource="net/sf/antcontrib/antcontrib.properties"/>
+
+    <target name="filter">
+        <if>
+            <isset property="file.name"/>
+            <then>
+                <copy file="${source.dir}/${file.name}" toDir="${dest.dir}" overwrite="true">
+                    <filterchain>
+                        <expandproperties/>
+                    </filterchain>
+                </copy>
+            </then>
+            <else>
+                <copy toDir="${dest.dir}" overwrite="true">
+                    <fileset dir="${source.dir}" />
+                    <filterchain>
+                        <expandproperties/>
+                    </filterchain>
+                </copy>
+            </else>
+        </if>
+    </target>
+
+    <target name="setClasspath" >
+        <path id="base.classpath">
+            <fileset dir="${jboss.home}/client" >
+                <include name="*.jar" />
+            </fileset>
+            <fileset dir="${jboss.home}/server/${jboss.server.configuration}/deployers/esb.deployer/lib/">
+                <include name="jbossesb-rosetta.jar" />
+                <include name="commons-io*.jar" />
+            </fileset>
+            <fileset dir="${jboss.home}/lib/">
+                <include name="jboss-javaee.jar" />
+            </fileset>
+            <fileset dir="${HORNETQ_HOME}/lib">
+                <include name="hornetq-core-client.jar" />
+                <include name="netty.jar" />
+                <include name="hornetq-jms-client.jar" />
+                <include name="jboss-jms-api.jar" />
+                <include name="jnp-client.jar" />
+                <include name="hornetq-logging.jar" />
+            </fileset>
+
+        </path>
+    </target>
+    
+    <target name="clean" >
+        <delete dir="${build.dir}" />
+    </target>
+
+
+</project>
